@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: pedidos_db
+    restart: always
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: pedidos_veloz_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api-gateway:
+    build:
+      context: ./services/gateway
+    container_name: api_gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - pedidos-service
+
+  pedidos-service:
+    build:
+      context: ./services/pedidos
+    container_name: pedidos_service
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: admin
+      DB_PASS: password123
+      DB_NAME: pedidos_veloz_db
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+
+volumes:
+  pgdata:

@@ -1,0 +1,35 @@
+name: CI/CD Pipeline - Loja Veloz
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout do código
+      uses: actions/checkout@v3
+
+    - name: Configurar Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+    - name: Build do API Gateway
+      run: |
+        cd services/gateway
+        npm install
+
+    - name: Build do Serviço de Pedidos
+      run: |
+        cd services/pedidos
+        npm install
+
+    - name: Testar build das Imagens Docker
+      run: |
+        docker build -t api-gateway:latest ./services/gateway
+        docker build -t pedidos-service:latest ./services/pedidos
